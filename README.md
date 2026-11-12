@@ -17,6 +17,7 @@ ollama pull llama3.2
 Avvia l'API dalla cartella del progetto:
 
 ```powershell
+$env:ASPNETCORE_ENVIRONMENT = "Development"
 dotnet run --urls http://localhost:5000
 ```
 
@@ -25,6 +26,10 @@ Durante l'esecuzione, la console mostra l'avvio e la configurazione di Ollama, l
 La configurazione del provider si trova in `appsettings.json` e può essere sovrascritta con le variabili d'ambiente `Ollama__BaseUrl`, `Ollama__EmbeddingModel`, `Ollama__ChatModel` e `Ollama__TopK`.
 
 ## API
+
+La documentazione interattiva è disponibile anche in produzione su
+`http://localhost:5000/scalar`; il documento OpenAPI è disponibile su
+`http://localhost:5000/openapi/v1.json`.
 
 ### Aggiungere un documento
 

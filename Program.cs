@@ -3,9 +3,11 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddOpenApi();
 builder.Services.Configure<OllamaOptions>(builder.Configuration.GetSection("Ollama"));
 builder.Services.AddHttpClient<OllamaClient>((serviceProvider, client) =>
 {
@@ -16,6 +18,9 @@ builder.Services.AddHttpClient<OllamaClient>((serviceProvider, client) =>
 builder.Services.AddSingleton<DocumentStore>();
 
 var app = builder.Build();
+
+app.MapOpenApi();
+app.MapScalarApiReference(options => options.WithTitle("RAG Demo API"));
 
 app.Logger.LogInformation(
     "RAG demo avviata. Documenti e embeddings sono conservati solo in memoria; nessun database configurato.");
@@ -29,8 +34,11 @@ app.MapGet("/", () => Results.Ok(new
 {
     name = "RAG Demo API",
     framework = ".NET 10 Minimal API",
-    endpoints = new[] { "GET /api/health", "GET /api/documents", "POST /api/documents", "POST /api/documents/upload", "DELETE /api/documents/{id}", "POST /api/chat" }
-}));
+    endpoints = new[] { "GET /api/health", "GET /api/documents", "POST /api/documents", "POST /api/documents/upload", "DELETE /api/documents/{id}", "POST /api/chat" },
+    documentation = new[] { "GET /openapi/v1.json", "GET /scalar" }
+}))
+    .WithSummary("Informazioni sull'API")
+    .WithDescription("Restituisce il nome del servizio, gli endpoint disponibili e i link alla documentazione.");
 
 app.MapGet("/api/health", (IOptions<OllamaOptions> options, DocumentStore store) => Results.Ok(new
 {
@@ -40,9 +48,13 @@ app.MapGet("/api/health", (IOptions<OllamaOptions> options, DocumentStore store)
     embeddingModel = options.Value.EmbeddingModel,
     chatModel = options.Value.ChatModel,
     indexedDocuments = store.Count
-}));
+}))
+    .WithSummary("Verifica lo stato dell'API")
+    .WithDescription("Restituisce lo stato del servizio Ollama, i modelli configurati e il numero di documenti indicizzati.");
 
-app.MapGet("/api/documents", (DocumentStore store) => Results.Ok(store.List()));
+app.MapGet("/api/documents", (DocumentStore store) => Results.Ok(store.List()))
+    .WithSummary("Elenca i documenti")
+    .WithDescription("Restituisce i documenti attualmente presenti nell'indice in memoria.");
 
 app.MapPost("/api/documents", async (
     AddDocumentRequest request,
@@ -91,7 +103,9 @@ app.MapPost("/api/documents", async (
         logger.LogWarning(exception, "Ollama timed out while indexing a document.");
         return Results.Problem("Ollama did not respond before the request timed out.", statusCode: 503);
     }
-});
+})
+    .WithSummary("Aggiunge un documento")
+    .WithDescription("Suddivide il testo in segmenti, calcola gli embeddings tramite Ollama e aggiunge il documento all'indice.");
 
 app.MapPost("/api/documents/upload", async (
     IFormFile file,
@@ -164,7 +178,9 @@ app.MapPost("/api/documents/upload", async (
         return Results.Problem("Ollama did not respond before the request timed out.", statusCode: 503);
     }
 })
-.DisableAntiforgery();
+    .DisableAntiforgery()
+    .WithSummary("Carica un documento")
+    .WithDescription("Carica e indicizza un file UTF-8 .txt o .md tramite multipart/form-data.");
 
 app.MapDelete("/api/documents/{id:guid}", (Guid id, DocumentStore store, ILogger<Program> logger) =>
 {
@@ -173,7 +189,9 @@ app.MapDelete("/api/documents/{id:guid}", (Guid id, DocumentStore store, ILogger
 
     logger.LogInformation("Documento {DocumentId} rimosso dall'indice in memoria. Documenti rimasti: {DocumentCount}.", id, store.Count);
     return Results.NoContent();
-});
+})
+    .WithSummary("Rimuove un documento")
+    .WithDescription("Rimuove dall'indice in memoria il documento identificato dal suo ID.");
 
 app.MapPost("/api/chat", async (
     ChatRequest request,
@@ -228,7 +246,9 @@ app.MapPost("/api/chat", async (
         logger.LogWarning(exception, "Ollama timed out while answering a chat request.");
         return Results.Problem("Ollama did not respond before the request timed out.", statusCode: 503);
     }
-});
+})
+    .WithSummary("Invia una domanda")
+    .WithDescription("Cerca nei documenti indicizzati e genera una risposta basata sui contenuti rilevanti tramite Ollama.");
 
 app.Run();
 

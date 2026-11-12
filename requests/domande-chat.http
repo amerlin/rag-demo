@@ -1,0 +1,67 @@
+@baseUrl = http://localhost:5000
+
+# Prima di provare le domande, carica in Scalar i file docs/guida-prodotto.md e docs/faq-assistenza.txt.
+
+### Recupero password
+POST {{baseUrl}}/api/chat
+Content-Type: application/json
+
+{
+  "question": "Come posso recuperare l'accesso se ho dimenticato la password e quanto dura il collegamento?"
+}
+
+### Stati delle richieste
+POST {{baseUrl}}/api/chat
+Content-Type: application/json
+
+{
+  "question": "Quali sono gli stati possibili di una richiesta e che cosa significa ciascuno?"
+}
+
+### Informazioni da non inserire
+POST {{baseUrl}}/api/chat
+Content-Type: application/json
+
+{
+  "question": "Quali dati non devo inserire nella descrizione di una richiesta di assistenza?"
+}
+
+### Tempi e orari di assistenza
+POST {{baseUrl}}/api/chat
+Content-Type: application/json
+
+{
+  "question": "Entro quanto tempo rispondete alle richieste ordinarie e in quali orari vengono esaminate quelle urgenti?"
+}
+
+### Richiesta in attesa
+POST {{baseUrl}}/api/chat
+Content-Type: application/json
+
+{
+  "question": "Cosa devo fare se una richiesta è in attesa di informazioni?"
+}
+
+### Riapertura di una richiesta
+POST {{baseUrl}}/api/chat
+Content-Type: application/json
+
+{
+  "question": "Come posso comportarmi se il problema si ripresenta dopo che la richiesta è stata risolta?"
+}
+
+### Buone pratiche per una nuova richiesta
+POST {{baseUrl}}/api/chat
+Content-Type: application/json
+
+{
+  "question": "Quali informazioni è utile includere quando apro una richiesta e cosa dovrei controllare prima?"
+}
+
+### Domanda senza risposta nei documenti
+POST {{baseUrl}}/api/chat
+Content-Type: application/json
+
+{
+  "question": "Qual è il numero di telefono del supporto?"
+}

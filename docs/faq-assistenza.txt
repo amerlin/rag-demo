@@ -1,0 +1,19 @@
+DOMANDE FREQUENTI - ASSISTENZA ORSA
+
+D: Ho dimenticato la password. Come posso recuperare l'accesso?
+R: Nella schermata di accesso seleziona "Password dimenticata" e segui il collegamento ricevuto all'indirizzo e-mail associato all'account. Il collegamento scade dopo 30 minuti. Se non ricevi il messaggio, controlla la cartella della posta indesiderata.
+
+D: Posso modificare una richiesta già inviata?
+R: Sì. Apri la richiesta e aggiungi un commento con le informazioni aggiornate. Se la richiesta non è ancora stata assegnata, puoi anche correggere il titolo e la descrizione.
+
+D: Quanto tempo serve per ricevere una risposta?
+R: Le richieste ordinarie ricevono una prima risposta entro un giorno lavorativo. Le richieste con priorità alta vengono esaminate appena possibile durante l'orario di assistenza, dal lunedì al venerdì, dalle 09:00 alle 17:00.
+
+D: Cosa devo fare se una richiesta è rimasta in attesa?
+R: Controlla la cronologia per vedere quale informazione manca e aggiungila come commento. Quando riceve i dettagli richiesti, il team può riprendere l'analisi.
+
+D: Come segnalo un problema che impedisce di accedere al servizio?
+R: Apri una richiesta nella categoria Account, indica che non riesci ad accedere e descrivi il messaggio visualizzato. Non includere la password. Se possibile, aggiungi l'orario del problema e il browser utilizzato.
+
+D: Posso riaprire una richiesta risolta?
+R: Se il problema si presenta di nuovo, aggiungi un commento alla richiesta e descrivi cosa è successo. Il team valuterà se riaprirla o se creare una nuova segnalazione.
