@@ -1,8 +1,8 @@
 using System.Text;
 using Microsoft.Extensions.Options;
+using NSwag.AspNetCore;
 using RagDemo.Models;
 using RagDemo.Services;
-using Scalar.AspNetCore;
 
 namespace RagDemo.Endpoints;
 
@@ -11,14 +11,18 @@ public static class RagDemoEndpoints
     public static void MapRagDemoEndpoints(this WebApplication app)
     {
         app.MapOpenApi();
-        app.MapScalarApiReference(options => options.WithTitle("RAG Demo API"));
+        app.UseSwaggerUi(options =>
+        {
+            options.DocumentTitle = "RAG Demo API";
+            options.SwaggerRoutes.Add(new SwaggerUiRoute("RAG Demo API", "/openapi/v1.json"));
+        });
 
         app.MapGet("/", () => Results.Ok(new
         {
             name = "RAG Demo API",
             framework = ".NET 10 Minimal API",
             endpoints = new[] { "GET /api/health", "GET /api/documents", "POST /api/documents", "POST /api/documents/upload", "DELETE /api/documents/{id}", "POST /api/chat" },
-            documentation = new[] { "GET /openapi/v1.json", "GET /scalar" }
+            documentation = new[] { "GET /openapi/v1.json", "GET /swagger" }
         }))
             .WithSummary("Informazioni sull'API")
             .WithDescription("Restituisce il nome del servizio, gli endpoint disponibili e i link alla documentazione.");

@@ -27,8 +27,8 @@ La configurazione del provider si trova in `appsettings.json` e può essere sovr
 
 ## API
 
-La documentazione interattiva è disponibile anche in produzione su
-`http://localhost:5000/scalar`; il documento OpenAPI è disponibile su
+La documentazione interattiva Swagger è disponibile anche in produzione su
+`http://localhost:5000/swagger`; il documento OpenAPI è disponibile su
 `http://localhost:5000/openapi/v1.json`.
 
 La configurazione iniziale dell'applicazione è in `Program.cs`; endpoint, modelli

@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:5000
 
-# Prima di provare le domande, carica in Scalar i file docs/guida-prodotto.md e docs/faq-assistenza.txt.
+# Prima di provare le domande, carica in Swagger i file docs/guida-prodotto.md e docs/faq-assistenza.txt.
 
 ### Recupero password
 POST {{baseUrl}}/api/chat
