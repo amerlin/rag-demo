@@ -9,4 +9,3 @@ app.LogRagDemoStartup(builder.Configuration);
 app.MapRagDemoEndpoints();
 app.Run();
 
-// public partial class Program;
