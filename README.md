@@ -40,6 +40,16 @@ Invoke-RestMethod -Method Post -Uri http://localhost:5000/api/documents `
 
 Il testo viene suddiviso in segmenti sovrapposti; Ollama calcola un embedding per ciascun segmento e l'indice viene mantenuto in memoria.
 
+### Caricare un file
+
+L'endpoint multipart accetta file UTF-8 `.txt` e `.md` fino a 100.000 caratteri (400.000 byte). Il titolo del documento viene ricavato dal nome del file.
+
+```powershell
+curl.exe -F "file=@.\manuale.md" http://localhost:5000/api/documents/upload
+```
+
+Il file viene indicizzato come un documento aggiunto tramite `POST /api/documents`.
+
 ### Elencare o rimuovere documenti
 
 ```powershell
@@ -64,5 +74,6 @@ La risposta include i segmenti recuperati, il titolo del documento e il punteggi
 | `GET` | `/api/health` | Stato e configurazione corrente |
 | `GET` | `/api/documents` | Elenco dei documenti indicizzati |
 | `POST` | `/api/documents` | Indicizza un documento (`title`, `content`) |
+| `POST` | `/api/documents/upload` | Carica e indicizza un file UTF-8 `.txt` o `.md` (`multipart/form-data`, campo `file`) |
 | `DELETE` | `/api/documents/{id}` | Rimuove un documento e i suoi segmenti |
 | `POST` | `/api/chat` | Risponde a una domanda (`question`) |

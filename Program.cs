@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 
@@ -28,7 +29,7 @@ app.MapGet("/", () => Results.Ok(new
 {
     name = "RAG Demo API",
     framework = ".NET 10 Minimal API",
-    endpoints = new[] { "GET /api/health", "GET /api/documents", "POST /api/documents", "DELETE /api/documents/{id}", "POST /api/chat" }
+    endpoints = new[] { "GET /api/health", "GET /api/documents", "POST /api/documents", "POST /api/documents/upload", "DELETE /api/documents/{id}", "POST /api/chat" }
 }));
 
 app.MapGet("/api/health", (IOptions<OllamaOptions> options, DocumentStore store) => Results.Ok(new
@@ -91,6 +92,79 @@ app.MapPost("/api/documents", async (
         return Results.Problem("Ollama did not respond before the request timed out.", statusCode: 503);
     }
 });
+
+app.MapPost("/api/documents/upload", async (
+    IFormFile file,
+    OllamaClient ollama,
+    DocumentStore store,
+    ILogger<Program> logger,
+    CancellationToken cancellationToken) =>
+{
+    if (file.Length == 0)
+        return Results.BadRequest(new { error = "The uploaded file is empty." });
+    if (file.Length > 400_000)
+        return Results.BadRequest(new { error = "The uploaded file must be at most 400,000 bytes." });
+
+    var extension = Path.GetExtension(file.FileName);
+    if (!string.Equals(extension, ".txt", StringComparison.OrdinalIgnoreCase)
+        && !string.Equals(extension, ".md", StringComparison.OrdinalIgnoreCase))
+        return Results.BadRequest(new { error = "Only .txt and .md files are supported." });
+
+    var title = Path.GetFileNameWithoutExtension(Path.GetFileName(file.FileName)).Trim();
+    if (string.IsNullOrWhiteSpace(title) || title.Length > 200)
+        return Results.BadRequest(new { error = "The file name must provide a title of at most 200 characters." });
+
+    string content;
+    try
+    {
+        using var reader = new StreamReader(file.OpenReadStream(), new UTF8Encoding(false, true));
+        content = await reader.ReadToEndAsync(cancellationToken);
+    }
+    catch (DecoderFallbackException)
+    {
+        return Results.BadRequest(new { error = "The uploaded file must contain valid UTF-8 text." });
+    }
+
+    if (string.IsNullOrWhiteSpace(content) || content.Length > 100_000)
+        return Results.BadRequest(new { error = "File content is required and must be at most 100,000 characters." });
+
+    var chunks = TextChunker.Split(content);
+    logger.LogInformation(
+        "Indicizzazione file '{DocumentTitle}': {CharacterCount} caratteri suddivisi in {ChunkCount} segmenti. Calcolo embeddings con Ollama...",
+        title,
+        content.Length,
+        chunks.Count);
+    try
+    {
+        var embeddings = await ollama.EmbedAsync(chunks, cancellationToken);
+        if (embeddings.Length != chunks.Count)
+            return Results.Problem("Ollama returned an unexpected number of embeddings.", statusCode: 502);
+
+        var document = store.Add(title, chunks, embeddings);
+        logger.LogInformation(
+            "File '{DocumentTitle}' indicizzato: {ChunkCount} segmenti aggiunti all'indice in memoria (totale: {DocumentCount} documenti).",
+            document.Title,
+            document.ChunkCount,
+            store.Count);
+        return Results.Created($"/api/documents/{document.Id}", document);
+    }
+    catch (OllamaServiceException exception)
+    {
+        logger.LogWarning(exception, "Could not index uploaded file with Ollama.");
+        return Results.Problem(exception.Message, statusCode: 503, title: "Ollama is unavailable");
+    }
+    catch (HttpRequestException exception)
+    {
+        logger.LogWarning(exception, "Could not connect to Ollama while indexing an uploaded file.");
+        return Results.Problem("Could not connect to Ollama. Check that the service is running and the configured model is available.", statusCode: 503);
+    }
+    catch (TaskCanceledException exception) when (!cancellationToken.IsCancellationRequested)
+    {
+        logger.LogWarning(exception, "Ollama timed out while indexing an uploaded file.");
+        return Results.Problem("Ollama did not respond before the request timed out.", statusCode: 503);
+    }
+})
+.DisableAntiforgery();
 
 app.MapDelete("/api/documents/{id:guid}", (Guid id, DocumentStore store, ILogger<Program> logger) =>
 {
