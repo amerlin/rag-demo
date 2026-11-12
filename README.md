@@ -35,6 +35,8 @@ La configurazione iniziale dell'applicazione è in `Program.cs`; endpoint, model
 API e servizi sono organizzati rispettivamente nelle cartelle `Endpoints`,
 `Models` e `Services`.
 
+Per una panoramica visiva del funzionamento, consulta il [diagramma di flusso](flow.md).
+
 ### Aggiungere un documento
 
 ```powershell
