@@ -31,6 +31,10 @@ La documentazione interattiva è disponibile anche in produzione su
 `http://localhost:5000/scalar`; il documento OpenAPI è disponibile su
 `http://localhost:5000/openapi/v1.json`.
 
+La configurazione iniziale dell'applicazione è in `Program.cs`; endpoint, modelli
+API e servizi sono organizzati rispettivamente nelle cartelle `Endpoints`,
+`Models` e `Services`.
+
 ### Aggiungere un documento
 
 ```powershell
